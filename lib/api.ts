@@ -1,71 +1,83 @@
 import axios from "axios";
-import { FormValues, Note } from "../types/note";
+// import { FormValues, Note } from "../types/note";
 
-interface NoteResponse {
-  notes: Note[]
-  totalPages: number
-}
 
-const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN
+// ---------------------------------------------------
 
-export async function fetchNotes(search: string, page: number, tag?: string): Promise<NoteResponse> {
-    const url = 'https://notehub-public.goit.study/api/notes'
-    const options = {
-      headers: {
-        accept: 'application/json',
-        Authorization: `Bearer ${TOKEN}`
-      },
-      params: {
-          search: search,
-          page: page,
-          perPage: 12,
-          tag: tag
-      }
-    }
+const baseURL = process.env.NEXT_PUBLIC_API_URL + '/api';
 
-  const response = await axios.get<NoteResponse>(url, options)
+export const api = axios.create({
+  baseURL:  baseURL,
+  withCredentials: true,
+})
 
-  return response.data
-}
+// ---------------------------------------------------
 
-export async function createNote(objet: FormValues): Promise<Note> {
-  const url = 'https://notehub-public.goit.study/api/notes'
-  const options = {
-    headers: {
-      accept: 'application/json',
-      Authorization: `Bearer ${TOKEN}`
-    },
-  }
+// interface NoteResponse {
+//   notes: Note[]
+//   totalPages: number
+// }
 
-  const response = await axios.post<Note>(url, objet, options)
+// const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN
 
-  return response.data
-}
+// export async function fetchNotes(search: string, page: number, tag?: string): Promise<NoteResponse> {
+//     const url = 'https://notehub-public.goit.study/api/notes'
+//     const options = {
+//       headers: {
+//         accept: 'application/json',
+//         Authorization: `Bearer ${TOKEN}`
+//       },
+//       params: {
+//           search: search,
+//           page: page,
+//           perPage: 12,
+//           tag: tag
+//       }
+//     }
 
-export async function deleteNote(id: string): Promise<Note> {
-  const url = `https://notehub-public.goit.study/api/notes/${id}`
-  const options = {
-    headers: {
-      accept: 'application/json',
-      Authorization: `Bearer ${TOKEN}`
-    },
-  }
+//   const response = await axios.get<NoteResponse>(url, options)
 
-  const response = await axios.delete<Note>(url, options)
+//   return response.data
+// }
 
-  return response.data
-}
+// export async function createNote(objet: FormValues): Promise<Note> {
+//   const url = 'https://notehub-public.goit.study/api/notes'
+//   const options = {
+//     headers: {
+//       accept: 'application/json',
+//       Authorization: `Bearer ${TOKEN}`
+//     },
+//   }
 
-export async function fetchNoteById(id: string): Promise<Note> {
-  const url = `https://notehub-public.goit.study/api/notes/${id}`
-  const options = {
-    headers: {
-      accept: 'application/json',
-      Authorization: `Bearer ${TOKEN}`
-    },
-  }
+//   const response = await axios.post<Note>(url, objet, options)
 
-  const response = await axios.get<Note>(url, options)
+//   return response.data
+// }
 
-  return response.data
-}
+// export async function deleteNote(id: string): Promise<Note> {
+//   const url = `https://notehub-public.goit.study/api/notes/${id}`
+//   const options = {
+//     headers: {
+//       accept: 'application/json',
+//       Authorization: `Bearer ${TOKEN}`
+//     },
+//   }
+
+//   const response = await axios.delete<Note>(url, options)
+
+//   return response.data
+// }
+
+// export async function fetchNoteById(id: string): Promise<Note> {
+//   const url = `https://notehub-public.goit.study/api/notes/${id}`
+//   const options = {
+//     headers: {
+//       accept: 'application/json',
+//       Authorization: `Bearer ${TOKEN}`
+//     },
+//   }
+
+//   const response = await axios.get<Note>(url, options)
+
+//   return response.data
+// }
