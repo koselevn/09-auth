@@ -19,9 +19,9 @@ export default function SignInPage() {
 
     try {
       await login({ email, password });
-      router.push("/profile"); // ✅ редірект після успіху
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+      router.push("/profile"); 
+    } catch (err) {
+      console.log(err)
     }
     };
     
