@@ -1,4 +1,4 @@
-import { api } from "../api";
+import { api } from "./api";
 import { FormValues, Note } from "../../types/note";
 import { User } from "@/types/user";
 
