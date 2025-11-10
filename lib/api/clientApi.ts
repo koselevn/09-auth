@@ -53,3 +53,29 @@ export async function deleteNote(id: string): Promise<Note> {
 }
 
 // ------------------- AUTH -------------------
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  message: string;
+  user?: {
+    id: string;
+    email: string;
+    name?: string;
+  };
+}
+
+export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
+  try {
+    const response = await api.post<AuthResponse>("/auth/login", credentials);
+    return response.data;
+  } catch (error) {
+    if (error) {
+      console.log(error);
+    }
+    console.log("Login filed")
+  }
+}

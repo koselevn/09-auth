@@ -1,9 +1,34 @@
+"use client"
+
 import css from './SignInPage.module.css'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { login } from "@/lib/api/clientApi";
 
 export default function SignInPage() {
+      const router = useRouter();
+  const [error, setError] = useState<string>("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      await login({ email, password });
+      router.push("/profile"); // ✅ редірект після успіху
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+    }
+    };
+    
+
     return (
         <main className={css.mainContent}>
-            <form className={css.form}>
+            <form className={css.form} onSubmit={handleSubmit}>
                 <h1 className={css.formTitle}>Sign in</h1>
                 <div className={css.formGroup}>
                     <label htmlFor="email">Email</label>
