@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import css from "./AuthNavigation.module.css"
 import { useAuth } from "@/lib/store/authStore"

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto } from 'next/font/google';
 import "../globals.css";
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
 import TanStackProvider from "../../components/TanStackProvider/TanStackProvider";
 import { SITE_URL } from "@/lib/host";
 
@@ -39,9 +37,7 @@ export default function RootLayout({ children, modal }: Readonly<{ children: Rea
       <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable}`}>
         <TanStackProvider>
-          <Header />
           {children}
-          <Footer />
           {modal}
         </TanStackProvider>
         </body>

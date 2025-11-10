@@ -1,5 +1,6 @@
 import { api } from "../api";
 import { FormValues, Note } from "../../types/note";
+import { User } from "@/types/user";
 
 interface NoteResponse {
   notes: Note[];
@@ -61,11 +62,13 @@ interface LoginCredentials {
 
 interface AuthResponse {
   message: string;
-  user?: {
-    id: string;
-    email: string;
-    name?: string;
-  };
+  user?: User;
+}
+
+interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
 }
 
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
@@ -73,9 +76,37 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
     const response = await api.post<AuthResponse>("/auth/login", credentials);
     return response.data;
   } catch (error) {
-    if (error) {
-      console.log(error);
-    }
-    console.log("Login filed")
+    console.error("Login failed:", error);
+    return { message: "Login failed" };
+  }
+}
+
+export async function register(data: RegisterData): Promise<AuthResponse> {
+  try {
+    const response = await api.post<AuthResponse>("/auth/register", data);
+    return response.data;
+  } catch (error) {
+    console.error("Register failed:", error);
+    return { message: "Register failed" };
+  }
+}
+
+export async function logout(): Promise<{ message: string }> {
+  try {
+    const response = await api.post<{ message: string }>("/auth/logout");
+    return response.data;
+  } catch (error) {
+    console.error("Logout failed:", error);
+    return { message: "Logout failed" };
+  }
+}
+
+export async function checkSession(): Promise<{ valid: boolean }> {
+  try {
+    const response = await api.get<{ valid: boolean }>("/auth/session");
+    return response.data;
+  } catch (error) {
+    console.error("Check session failed:", error);
+    return { valid: false };
   }
 }
