@@ -1,30 +1,63 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { checkSession } from "./lib/api/serverApi";
 
-export function middleware(req: NextRequest) {
-    const token = req.cookies.get("token")?.value;
-    const { pathname } = req.nextUrl;
+export async function middleware(req: NextRequest) {
+  const accessToken = req.cookies.get("accessToken")?.value;
+  const refreshToken = req.cookies.get("refreshToken")?.value;
+  const { pathname } = req.nextUrl;
 
-    const isAuthRoute = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
-    const isPrivateRoute = pathname.startsWith("/profile") || pathname.startsWith("/notes") || pathname.startsWith("/notes/action/create");
-    
-    if (isPrivateRoute && !token) {
-        const url = req.nextUrl.clone();
-        url.pathname = "/sign-in";
-        return NextResponse.redirect(url);
+  const isAuthRoute =
+    pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
+
+  const isPrivateRoute =
+    pathname.startsWith("/profile") || pathname.startsWith("/notes");
+
+  // 🟠 Якщо accessToken немає, але refreshToken є — оновлюємо сесію
+  if (!accessToken && refreshToken) {
+    try {
+      const session = await checkSession();
+
+      if (session?.accessToken && session?.refreshToken) {
+        const res = NextResponse.next();
+
+        res.cookies.set("accessToken", session.accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          path: "/",
+        });
+
+        res.cookies.set("refreshToken", session.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          path: "/",
+        });
+
+        return res;
+      }
+    } catch (error) {
+      console.error("Session refresh failed:", error);
     }
-    
-    if (isAuthRoute && token) {
-        const url = req.nextUrl.clone();
-        url.pathname = "/profile";
-        return NextResponse.redirect(url);
-    }
+  }
 
-    return NextResponse.next();
+  // 🔴 Якщо приватний маршрут і немає accessToken → редірект на /sign-in
+  if (isPrivateRoute && !accessToken) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/sign-in";
+    return NextResponse.redirect(url);
+  }
+
+  // 🟢 Якщо маршрут автентифікації і користувач уже авторизований → редірект на /
+  if (isAuthRoute && accessToken) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
 }
 
+// 🎯 Matcher тільки для потрібних маршрутів
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api|images).*)",
-  ],
+  matcher: ["/profile/:path*", "/notes/:path*", "/sign-in", "/sign-up"],
 };

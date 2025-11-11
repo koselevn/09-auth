@@ -2,58 +2,12 @@ import { api } from "./api";
 import { FormValues, Note } from "../../types/note";
 import { User } from "@/types/user";
 
+// ------------------- TYPES -------------------
+
 interface NoteResponse {
   notes: Note[];
   totalPages: number;
 }
-
-const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
-
-// ------------------- NOTES -------------------
-
-export async function fetchNotes(search: string, page: number, tag?: string): Promise<NoteResponse> {
-  const response = await api.get<NoteResponse>("/notes", {
-    headers: {
-      Authorization: `Bearer ${TOKEN}`,
-    },
-    params: {
-      search,
-      page,
-      perPage: 12,
-      tag,
-    },
-  });
-  return response.data;
-}
-
-export async function fetchNoteById(id: string): Promise<Note> {
-  const response = await api.get<Note>(`/notes/${id}`, {
-    headers: {
-      Authorization: `Bearer ${TOKEN}`,
-    },
-  });
-  return response.data;
-}
-
-export async function createNote(data: FormValues): Promise<Note> {
-  const response = await api.post<Note>("/notes", data, {
-    headers: {
-      Authorization: `Bearer ${TOKEN}`,
-    },
-  });
-  return response.data;
-}
-
-export async function deleteNote(id: string): Promise<Note> {
-  const response = await api.delete<Note>(`/notes/${id}`, {
-    headers: {
-      Authorization: `Bearer ${TOKEN}`,
-    },
-  });
-  return response.data;
-}
-
-// ------------------- AUTH -------------------
 
 interface LoginCredentials {
   email: string;
@@ -66,12 +20,60 @@ interface AuthResponse {
 }
 
 interface RegisterData {
-  name: string;
+  username: string;
   email: string;
   password: string;
 }
 
-export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
+// ------------------- AXIOS CONFIG -------------------
+
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("accessToken="))
+      ?.split("=")[1];
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+
+// ------------------- NOTES -------------------
+
+export async function fetchNotes(
+  search: string,
+  page: number,
+  tag?: string
+): Promise<NoteResponse> {
+  const response = await api.get<NoteResponse>("/notes", {
+    params: { search, page, perPage: 12, tag },
+  });
+  return response.data;
+}
+
+export async function fetchNoteById(id: string): Promise<Note> {
+  const response = await api.get<Note>(`/notes/${id}`);
+  return response.data;
+}
+
+export async function createNote(data: FormValues): Promise<Note> {
+  const response = await api.post<Note>("/notes", data);
+  return response.data;
+}
+
+export async function deleteNote(id: string): Promise<{ message: string }> {
+  const response = await api.delete<{ message: string }>(`/notes/${id}`);
+  return response.data;
+}
+
+// ------------------- AUTH -------------------
+
+export async function login(
+  credentials: LoginCredentials
+): Promise<AuthResponse> {
   try {
     const response = await api.post<AuthResponse>("/auth/login", credentials);
     return response.data;
@@ -109,4 +111,20 @@ export async function checkSession(): Promise<{ valid: boolean }> {
     console.error("Check session failed:", error);
     return { valid: false };
   }
+}
+
+// ------------------- USER PROFILE -------------------
+
+// ✅ Отримання профілю поточного користувача
+export async function getCurrentUser(): Promise<User> {
+  const response = await api.get<User>("/users/me");
+  return response.data;
+}
+
+// ✅ Оновлення профілю користувача
+export async function updateCurrentUser(
+  data: Partial<User>
+): Promise<User> {
+  const response = await api.patch<User>("/users/me", data);
+  return response.data;
 }

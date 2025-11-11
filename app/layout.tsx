@@ -5,6 +5,7 @@ import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import TanStackProvider from "../components/TanStackProvider/TanStackProvider";
 import { SITE_URL } from "@/lib/host";
+import AuthProvider from "../components/AuthProvider/AuthProvider";
 
 
 
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 
-const roboto = Roboto({
+export const roboto = Roboto({
   subsets: ['latin'], 
   weight: ['400', '700'],
   variable: '--font-roboto', 
@@ -39,10 +40,12 @@ export default function RootLayout({ children, modal }: Readonly<{ children: Rea
       <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable}`}>
         <TanStackProvider>
-          <Header />
-          {children}
-          <Footer />
-          {modal}
+          <AuthProvider>
+            <Header />
+            {children}
+            <Footer />
+            {modal}
+          </AuthProvider>
         </TanStackProvider>
         </body>
       </html>

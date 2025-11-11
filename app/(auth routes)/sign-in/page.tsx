@@ -1,15 +1,17 @@
 "use client"
 
 import css from './SignInPage.module.css'
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api/clientApi";
+import { useAuth } from '@/lib/store/authStore';
 
 export default function SignInPage() {
-      const router = useRouter();
-  const [error, setError] = useState<string>("");
+    const router = useRouter();
+    const { setUser } = useAuth();
+    const [error, setError] = useState<string>("");
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
@@ -18,12 +20,19 @@ export default function SignInPage() {
     const password = formData.get("password") as string;
 
     try {
-      await login({ email, password });
-      router.push("/profile"); 
+      const response = await login({ email, password });
+
+      if (response.user) {
+        setUser(response.user);
+        router.push("/profile");
+      } else {
+        setError(response.message || "Login failed");
+      }
     } catch (err) {
-      console.log(err)
+      console.error(err);
+      setError("Something went wrong. Please try again.");
     }
-    };
+  };
     
 
     return (
