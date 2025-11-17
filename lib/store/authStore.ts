@@ -2,23 +2,15 @@ import { User } from "@/types/user";
 import { create } from "zustand";
 
 interface AuthStore {
-    user: User,
-    isAuthenticated: boolean,
-    setUser: (user: User) => void,
-    clearIsAuthenticated: () => void
-};
-
-const initialUser: User = {
-    email: '',
-    username: '',
-    avatar: '',
+    user: User | null;
+    isAuthenticated: boolean;
+    setUser: (user: User | null) => void;
+    logout: () => void;
 }
 
-export const useAuth = create<AuthStore>()(
-    (set) => ({
-        user: initialUser,
-        isAuthenticated: false,
-        setUser: (user: User) => {set({user: user, isAuthenticated: true})},
-        clearIsAuthenticated: () => {set({user: initialUser, isAuthenticated: false})},
-    })
-)
+export const useAuth = create<AuthStore>((set) => ({
+    user: null,
+    isAuthenticated: false,
+    setUser: (user) => set({ user, isAuthenticated: Boolean(user) }),
+    logout: () => set({ user: null, isAuthenticated: false }),
+}));

@@ -22,7 +22,7 @@ export default function SignUpPage() {
         setError("");
 
         try {
-            const response = await register({ username: email, email: email, password: password });
+            const response = await register({ email: email, password: password });
 
             if (response.user) {
                 // Оновлюємо глобальний стан

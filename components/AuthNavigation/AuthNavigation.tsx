@@ -4,15 +4,17 @@ import Link from "next/link"
 import css from "./AuthNavigation.module.css"
 import { useAuth } from "@/lib/store/authStore"
 import { api } from "../../lib/api/api";
+import { useRouter } from "next/navigation";
 
 export default function AuthNavigation() {
-    const { isAuthenticated, user, clearIsAuthenticated } = useAuth()
+    const { isAuthenticated, user, logout } = useAuth()
+    const router = useRouter()
     
     const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
-      clearIsAuthenticated();
-      window.location.href = "/sign-in"
+      logout();
+      router.push("/sign-in");
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -25,7 +27,7 @@ export default function AuthNavigation() {
                         <Link href="/profile" prefetch={false} className={css.navigationLink}>Profile</Link>
                     </li>
                     <li className={css.navigationItem}>
-                        <p className={css.userEmail}>{user.email}</p>
+                        <p className={css.userEmail}>{user?.email}</p>
                         <button onClick={handleLogout} className={css.logoutButton}>Logout</button>
                     </li>
                 </>

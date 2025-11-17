@@ -1,43 +1,40 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { checkSession } from "@/lib/api/clientApi";
+import { checkSession, getCurrentUser } from "@/lib/api/clientApi";
+import { useAuth } from "@/lib/store/authStore";
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const setUser = useAuth((state) => state.setUser);
 
   useEffect(() => {
-    const verifySession = async () => {
+    const initAuth = async () => {
       try {
         const session = await checkSession();
-        if (!session?.valid) {
-          router.push("/sign-in");
+
+        if (session?.valid) {
+          const user = await getCurrentUser();
+          setUser(user);
         } else {
-          setIsAuthenticated(true);
+          setUser(null);
         }
       } catch (error) {
-          router.push("/sign-in");
-          console.log(error)
+        console.error("AuthProvider error:", error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
-    verifySession();
-  }, [router]);
+    initAuth();
+  }, [setUser]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!isAuthenticated) return null;
+  if (loading) return <div>Loading...</div>;
 
   return <>{children}</>;
 }
