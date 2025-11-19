@@ -14,10 +14,9 @@ interface LoginCredentials {
   password: string;
 }
 
-interface AuthResponse {
-  message: string;
-  user?: User;
-}
+export type AuthResponse = User & {
+  message?: string;
+};
 
 interface RegisterData {
   username: string;
@@ -86,12 +85,12 @@ export async function login(
   }
 }
 
-export async function register(data: { email: string; password: string }): Promise<AuthResponse> {
+export async function register(data: RegisterData): Promise<AuthResponse> {
   try {
     const response = await api.post<AuthResponse>("/auth/register", data);
     return response.data;
-  } catch (error: null | any) {
-    console.error("Register failed:", error.response.data || error.message);
+  } catch (error: any) {
+    console.error("Register failed:", error.response?.data);
     return { message: error.response?.data?.message || "Register failed" };
   }
 }
