@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import css from "./SignUpPage.module.css";
 import { useState } from "react";
 import { register, RegisterRequest } from "@/lib/api/clientApi";
-import { ApiError } from "@/app/api/api";
+import { AxiosError } from "axios";
 import { useAuthStore } from "@/lib/store/authStore";
 
 const SignUp = () => {
@@ -22,12 +22,14 @@ const SignUp = () => {
         setError("Invalid email or password");
       }
     } catch (error) {
-      setError(
-        (error as ApiError).response?.data?.error ??
-          (error as ApiError).message ??
+        const err = error as AxiosError<{ error?: string }>;
+
+        setError(
+          err.response?.data?.error ??
+          err.message ??
           "Oops... some error"
-      );
-    }
+        );
+      }
   };
   return (
     <>
